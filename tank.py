@@ -9,7 +9,7 @@ class Tank:
         # Set tank's position
         self.pos = pos
         # Create a bullet entity for tank
-        self.bullet = Bullet(pos)
+        self.bullet = Bullet(self.pos)
         # Define angle to shoot the bullet
         self.bullet_angle = -math.pi/4
         # Define power to shoot the bullet
@@ -21,11 +21,14 @@ class Tank:
 
     def shoot(self) -> None:
         '''Calls bullet's shoot function with correct parameters'''
-        self.bullet.shoot(self.pos, self.bullet_angle, self.bullet_power)
+        self.bullet.shoot(self.center_pos, self.bullet_angle, self.bullet_power)
 
     def update(self):
         '''Updates bullet position'''
         self.bullet.update()
+
+    def set_center_pos(self, pos):
+        self.center_pos = pos
 
     def set_angle(self, angle):
         '''Changes bullet angle'''
