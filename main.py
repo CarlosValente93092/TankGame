@@ -1,7 +1,6 @@
 # Standard library imports
 import math
-
-# Third-party imports
+import random
 import pygame
 
 # Local imports
@@ -11,11 +10,12 @@ from sprites import BulletSprite, TankSprite, TerrainSprite
 import colors
 
 
-def check_off_limits(gameWidth: int, rect_centerx: int):
+def check_off_limits(gameWidth: int, rect_centerx: int) -> bool:
+    # Check if the center x position of the given rectangle is outside of the game screen
     return rect_centerx > gameWidth or rect_centerx < 0
 
 
-def main(WIDTH, HEIGHT, SCALE):
+def main(WIDTH, HEIGHT, SCALE) -> None:
     # Initialize Pygame
     pygame.init()
     # Create the window
@@ -47,9 +47,16 @@ def main(WIDTH, HEIGHT, SCALE):
     bullet1_sprite.update()
     bullet2_sprite.update()
 
-    # Tank 1 starts the game
-    tank1_sprite.tank.current_player = True
-    current_player = 1
+    # Choose a random player to start
+    current_player = random.randint(1, 2)
+    # Set the current player flag for the chosen player
+    if current_player == 1:
+        tank1_sprite.tank.current_player = True
+    else:
+        tank2_sprite.tank.current_player = True
+
+    # Set frame limit variable
+    frame_limit = 30
 
     # Run the game loop
     running = True
@@ -66,30 +73,49 @@ def main(WIDTH, HEIGHT, SCALE):
         keys = pygame.key.get_pressed()
 
         # Check for collisions
+        # Check if bullet1 is off the limits of the screen
         if check_off_limits(WIDTH*SCALE, bullet1_sprite.rect.centerx):
+            # Set the flag indicating that bullet2 has hit something
             tank1_sprite.tank.bulletHit = True
-        if bullet1_sprite.rect.colliderect(tank2_sprite.rect):
+        # Check if bullet1 has hit the second tank
+        elif bullet1_sprite.rect.colliderect(tank2_sprite.rect):
+            # Set the flag indicating that bullet2 has hit something
             tank1_sprite.tank.bulletHit = True
-        if bullet1_sprite.rect.colliderect(terrain_sprite.rect):
+        # Check if bullet1 has hit the terrain
+        elif bullet1_sprite.rect.colliderect(terrain_sprite.rect):
+            # Set the flag indicating that bullet2 has hit something
             tank1_sprite.tank.bulletHit = True
 
+        # Check if bullet2 is off the limits of the screen
         if check_off_limits(WIDTH*SCALE, bullet2_sprite.rect.centerx):
+            # Set the flag indicating that bullet2 has hit something
             tank2_sprite.tank.bulletHit = True
-        if bullet2_sprite.rect.colliderect(tank1_sprite.rect):
+        # Check if bullet2 has hit the second tank
+        elif bullet2_sprite.rect.colliderect(tank1_sprite.rect):
+            # Set the flag indicating that bullet2 has hit something
             tank2_sprite.tank.bulletHit = True
-        if bullet2_sprite.rect.colliderect(terrain_sprite.rect):
+        # Check if bullet2 has hit the terrain
+        elif bullet2_sprite.rect.colliderect(terrain_sprite.rect):
+            # Set the flag indicating that bullet2 has hit something
             tank2_sprite.tank.bulletHit = True
 
-        # Switches players
+        # Switch players
         if not tank1_sprite.tank.current_player and current_player == 1:
+            # Switch to player 2
             current_player = 2
+            # Tank2 can now move and prepare to shoot
             tank2_sprite.tank.current_player = True
         elif not tank2_sprite.tank.current_player and current_player == 2:
+            # Switch to player 1
             current_player = 1
+            # Tank1 can now move and prepare to shoot
             tank1_sprite.tank.current_player = True
 
-        tank1_sprite.tank.update(keys)
-        tank2_sprite.tank.update(keys)
+        # Update tank information
+        if not tank1_sprite.tank.update(keys):
+            print("Tank 1 destroyed")
+        if not tank2_sprite.tank.update(keys):
+            print("Tank 2 destroyed")
 
         # Fill screen
         screen.fill(colors.AZURE)
@@ -110,7 +136,7 @@ def main(WIDTH, HEIGHT, SCALE):
         # Update screen
         pygame.display.flip()
         # Limit the frame rate
-        clock.tick(30)
+        clock.tick(frame_limit)
 
     # Quit Pygame
     pygame.quit()

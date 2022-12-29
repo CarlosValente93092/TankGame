@@ -1,5 +1,7 @@
 import pygame
+from typing import List, Dict, Type
 
+# Constants representing the values that will be added to the angle or power of the bullet, or the movement of the tank
 VALUE_ANGLE_LEFT = -0.05
 VALUE_ANGLE_RIGHT = -VALUE_ANGLE_LEFT
 VALUE_MOVE_LEFT = (-1, 0)
@@ -8,9 +10,21 @@ VALUE_POWER_DOWN = -1
 VALUE_POWER_UP = -VALUE_POWER_DOWN
 
 
+class Command:
+    def __init__(self):
+        self.actor = None
+
+    # Abstract method that needs to be implemented in subclasses
+    def execute(self, actor):
+        raise NotImplemented
+
+# Class representing the input handler, responsible for handling the user's inputs and returning the corresponding commands
+
+
 class InputHandler:
     def __init__(self) -> None:
-        self.commands = {
+        # Dictionary with the key corresponding to a pygame key constant and the value being the command to be executed
+        self.commands: Dict[int, Type[Command]] = {
             pygame.K_q: ANGLE_LEFT,
             pygame.K_w: POWER_UP,
             pygame.K_e: ANGLE_RIGHT,
@@ -28,62 +42,68 @@ class InputHandler:
             pygame.K_SPACE: SHOOT
         }
 
-    def update(self, events):
-        '''Returns list of all commands available'''
+    def update(self, events: List[bool]) -> Dict[int, Type[Command]]:
+        '''Returns a dictionary with the keys being the pygame key constants and the values being the commands to be executed, based on the events passed as parameter'''
         return {key: value for key, value in self.commands.items() if events[key]}
 
-    def get_controls_1(self):
+    def get_controls_1(self) -> List[int]:
+        '''Returns a list with the keys representing the controls for player 1'''
         return [pygame.K_q, pygame.K_w, pygame.K_e, pygame.K_a, pygame.K_s, pygame.K_d]
 
-    def get_controls_2(self):
+    def get_controls_2(self) -> List[int]:
+        '''Returns a list with the keys representing the controls for player 2'''
         return [pygame.K_u, pygame.K_i, pygame.K_o, pygame.K_j, pygame.K_k, pygame.K_l]
-
-
-class Command:
-    def __init__(self):
-        self.actor = None
-
-    def execute(self, actor):
-        raise NotImplemented
 
 
 class ANGLE_LEFT(Command):
     def execute(self, actor):
+        # Save reference to actor
         self.actor = actor
+        # Call set_angle method on actor with VALUE_ANGLE_LEFT as parameter
         actor.set_angle(VALUE_ANGLE_LEFT)
 
 
 class ANGLE_RIGHT(Command):
     def execute(self, actor):
+        # Save reference to actor
         self.actor = actor
+        # Call set_angle method on actor with VALUE_ANGLE_RIGHT as parameter
         actor.set_angle(VALUE_ANGLE_RIGHT)
 
 
 class POWER_DOWN(Command):
     def execute(self, actor):
+        # Save reference to actor
         self.actor = actor
+        # Call set_power method on actor with VALUE_POWER_DOWN as parameter
         actor.set_power(VALUE_POWER_DOWN)
 
 
 class POWER_UP(Command):
     def execute(self, actor):
+        # Save reference to actor
         self.actor = actor
+        # Call set_power method on actor with VALUE_POWER_UP as parameter
         actor.set_power(VALUE_POWER_UP)
 
 
 class MOVE_LEFT(Command):
     def execute(self, actor):
+        # Save reference to actor
         self.actor = actor
+        # Call move method on actor with VALUE_MOVE_LEFT as parameter
         actor.move(VALUE_MOVE_LEFT)
 
 
 class MOVE_RIGHT(Command):
     def execute(self, actor):
+        """Move the actor to the right"""
         self.actor = actor
         actor.move(VALUE_MOVE_RIGHT)
 
 
 class SHOOT(Command):
     def execute(self, actor):
+        """Make the actor shoot a bullet"""
         self.actor = actor
         actor.shoot()
