@@ -23,6 +23,7 @@ def main(WIDTH, HEIGHT, SCALE) -> None:
     # Set the title of the window
     pygame.display.set_caption("Tanks Game")
 
+    background_image = pygame.image.load("images/sky_background.png")
     # Set the key repeat delay and interval
     pygame.key.set_repeat(50, 50)
 
@@ -58,6 +59,8 @@ def main(WIDTH, HEIGHT, SCALE) -> None:
     # Set frame limit variable
     frame_limit = 30
 
+    # Set health bar size
+    health_bar_size = 20
     # Run the game loop
     running = True
     while running:
@@ -68,6 +71,8 @@ def main(WIDTH, HEIGHT, SCALE) -> None:
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     running = False
+                if event.key == pygame.K_r:
+                    return False
         # Update the game logic
         # Retrieve all keys that are being pressed
         keys = pygame.key.get_pressed()
@@ -77,27 +82,23 @@ def main(WIDTH, HEIGHT, SCALE) -> None:
         if check_off_limits(WIDTH*SCALE, bullet1_sprite.rect.centerx):
             # Set the flag indicating that bullet2 has hit something
             tank1_sprite.tank.bulletHit = True
-        # Check if bullet1 has hit the second tank
-        elif bullet1_sprite.rect.colliderect(tank2_sprite.rect):
+        # Check if bullet1 has hit the second tank or hit the terrain
+        elif bullet1_sprite.rect.colliderect(tank2_sprite.rect) or bullet1_sprite.rect.colliderect(terrain_sprite.rect):
             # Set the flag indicating that bullet2 has hit something
             tank1_sprite.tank.bulletHit = True
-        # Check if bullet1 has hit the terrain
-        elif bullet1_sprite.rect.colliderect(terrain_sprite.rect):
-            # Set the flag indicating that bullet2 has hit something
-            tank1_sprite.tank.bulletHit = True
+            # Calculates and infliches damage to other tank
+            tank2_sprite.tank.calculate_damage(bullet1_sprite.rect.center, 0)
 
         # Check if bullet2 is off the limits of the screen
         if check_off_limits(WIDTH*SCALE, bullet2_sprite.rect.centerx):
             # Set the flag indicating that bullet2 has hit something
             tank2_sprite.tank.bulletHit = True
-        # Check if bullet2 has hit the second tank
-        elif bullet2_sprite.rect.colliderect(tank1_sprite.rect):
+        # Check if bullet2 has hit the second tank or hit the terrain
+        elif bullet2_sprite.rect.colliderect(tank1_sprite.rect) or bullet2_sprite.rect.colliderect(terrain_sprite.rect):
             # Set the flag indicating that bullet2 has hit something
             tank2_sprite.tank.bulletHit = True
-        # Check if bullet2 has hit the terrain
-        elif bullet2_sprite.rect.colliderect(terrain_sprite.rect):
-            # Set the flag indicating that bullet2 has hit something
-            tank2_sprite.tank.bulletHit = True
+            # Calculates and infliches damage to other tank
+            tank1_sprite.tank.calculate_damage(bullet2_sprite.rect.center, 0)
 
         # Switch players
         if not tank1_sprite.tank.current_player and current_player == 1:
@@ -117,8 +118,8 @@ def main(WIDTH, HEIGHT, SCALE) -> None:
         if not tank2_sprite.tank.update(keys):
             print("Tank 2 destroyed")
 
-        # Fill screen
-        screen.fill(colors.AZURE)
+        # Draw the background image onto the window
+        screen.blit(background_image, (0, 0))
 
         # Update all sprites
         all_sprites.update()
@@ -133,15 +134,27 @@ def main(WIDTH, HEIGHT, SCALE) -> None:
             tank2_sprite.rect.center[0] + tank2_sprite.tank.bullet_power * math.cos(tank2_sprite.tank.bullet_angle),
             tank2_sprite.rect.center[1] + tank2_sprite.tank.bullet_power * math.sin(tank2_sprite.tank.bullet_angle)))
 
+        # Draw tank1's health
+        pygame.draw.rect(screen, colors.RED, pygame.Rect(0, 0, (health_bar_size*SCALE)*tank1_sprite.tank.health/100, 2*SCALE))
+        pygame.draw.rect(screen, colors.BLACK, pygame.Rect(0, 0, health_bar_size*SCALE, 2*SCALE), width=1)
+
+        # Draw tank2's health
+        pygame.draw.rect(screen, colors.RED, pygame.Rect(WIDTH*SCALE-health_bar_size*SCALE, 0, (health_bar_size*SCALE)*tank2_sprite.tank.health/100, 2*SCALE))
+        pygame.draw.rect(screen, colors.BLACK, pygame.Rect(WIDTH*SCALE-health_bar_size*SCALE, 0, health_bar_size*SCALE, 2*SCALE), width=1)
+
         # Update screen
         pygame.display.flip()
         # Limit the frame rate
         clock.tick(frame_limit)
 
     # Quit Pygame
-    pygame.quit()
-    return
+    # pygame.quit()
+    return True
 
 
 if __name__ == "__main__":
-    main(64, 48, 10)
+    while True:
+        if main(64, 48, 10):
+            break
+    # Quit Pygame
+    pygame.quit()

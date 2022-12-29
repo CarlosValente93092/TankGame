@@ -104,3 +104,24 @@ class Tank:
             self.bullet_power = 100
         elif self.bullet_power < 0:
             self.bullet_power = 0
+
+    def calculate_damage(self, bullet_pos: Tuple[int, int], bullet_type):
+        distance = self.distance(bullet_pos, self.center_pos)
+        # Use some arbitrary constants to tune the damage formula
+        # damage coefficient is set to the minimum distance to the center of the tank from any point of the tank's rect
+        damage_coefficient = 500
+        # Maximum damage done with a missile
+        max_damage = 40
+
+        # Calculate the damage based on distance
+        if distance > 100:
+            damage = 0
+        else:
+            damage = min((1/(distance*distance)) * damage_coefficient * max_damage, max_damage)
+
+        # Decrease tank's health
+        self.health -= damage
+
+    # Distance function
+    def distance(self, coord1: Tuple[int, int], coord2: Tuple[int, int]):
+        return math.sqrt((coord1[0]-coord2[0])*(coord1[0]-coord2[0]) + (coord1[1]-coord2[1])*(coord1[1]-coord2[1]))

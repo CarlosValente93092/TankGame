@@ -57,3 +57,6 @@ PURPLE = (128, 0, 128)
 
 # Black color
 BLACK = (0, 0, 0)
+
+# Gray color
+GRAY = (128, 128, 128)
