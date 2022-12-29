@@ -1,3 +1,4 @@
+# Standard library imports
 import math
 
 
@@ -14,7 +15,7 @@ class Bullet:
         # Set flag to identify bullet is moving or stopped
         self.shooting = False
 
-    def shoot(self, pos, angle, power) -> None:
+    def shoot(self, pos, angle=-math.pi/4, power=50) -> None:
         '''Function to reset bullets parameters to be ready to be shot'''
         # Redefine bullet to position to tank's position
         self.pos = pos
@@ -38,3 +39,6 @@ class Bullet:
 
             # Increase the time
             self.time += self.time_step
+
+    def set_pos(self, pos):
+        self.pos = pos

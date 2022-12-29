@@ -1,10 +1,14 @@
+# Standard library imports
 import math
-import pygame
-import colors
 
+# Third-party imports
+import pygame
+
+# Local imports
 from tank import Tank
 from terrain import Terrain
 from sprites import BulletSprite, TankSprite, TerrainSprite
+import colors
 
 
 def main(WIDTH, HEIGHT, SCALE):
@@ -22,16 +26,20 @@ def main(WIDTH, HEIGHT, SCALE):
     clock = pygame.time.Clock()
 
     # Create player tank
-    tank1_sprite = TankSprite(Tank((WIDTH*SCALE/4, 3*HEIGHT*SCALE/4)), SCALE)
-    tank2_sprite = TankSprite(Tank((3*WIDTH*SCALE/4, 3*HEIGHT*SCALE/4)), SCALE)
+    tank1_sprite = TankSprite(Tank((WIDTH*SCALE/4, 3*HEIGHT*SCALE/4), 1), SCALE)
+    tank2_sprite = TankSprite(Tank((3*WIDTH*SCALE/4, 3*HEIGHT*SCALE/4), 2), SCALE)
     # Create terrain for tanks to move
     terrain_sprite = TerrainSprite(Terrain(WIDTH, HEIGHT, SCALE, colors.GREEN, tank1_sprite.get_bottom_pos()), SCALE)
     # Create bullet sprites for tanks
     bullet1_sprite = BulletSprite(tank1_sprite.tank.bullet, SCALE)
     bullet2_sprite = BulletSprite(tank2_sprite.tank.bullet, SCALE)
-
+    # Add all sprites to a group of sprites
     all_sprites = pygame.sprite.Group()
     all_sprites.add(bullet1_sprite, bullet2_sprite, tank1_sprite, tank2_sprite, terrain_sprite)
+
+    # Tank 1 starts the game
+    tank1_sprite.tank.current_player = True
+    current_player = 1
 
     # Run the game loop
     running = True
@@ -43,52 +51,26 @@ def main(WIDTH, HEIGHT, SCALE):
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     running = False
-
-        keys = pygame.key.get_pressed()
-        # Tank 1 controls
-        if keys[pygame.K_d]:
-            tank1_sprite.tank.move((1, 0))
-        if keys[pygame.K_a]:
-            tank1_sprite.tank.move((-1, 0))
-        if keys[pygame.K_q]:
-            tank1_sprite.tank.set_angle(-0.05)
-        if keys[pygame.K_e]:
-            tank1_sprite.tank.set_angle(0.05)
-        if keys[pygame.K_s]:
-            tank1_sprite.tank.set_power(-1)
-        if keys[pygame.K_w]:
-            tank1_sprite.tank.set_power(1)
-
-        # Tank 2 controls
-        if keys[pygame.K_l]:
-            tank2_sprite.tank.move((1, 0))
-        if keys[pygame.K_j]:
-            tank2_sprite.tank.move((-1, 0))
-        if keys[pygame.K_u]:
-            tank2_sprite.tank.set_angle(-0.1)
-        if keys[pygame.K_o]:
-            tank2_sprite.tank.set_angle(0.1)
-        if keys[pygame.K_k]:
-            tank2_sprite.tank.set_power(-1)
-        if keys[pygame.K_i]:
-            tank2_sprite.tank.set_power(1)
-
-        # Shoot button
-        if keys[pygame.K_SPACE]:
-            bullet1_sprite.image.set_alpha(255)
-            bullet2_sprite.image.set_alpha(255)
-            tank1_sprite.tank.shoot()
-            tank2_sprite.tank.shoot()
-
         # Update the game logic
-        tank1_sprite.tank.update()
-        tank2_sprite.tank.update()
+        # Retrieve all keys that are being pressed
+        keys = pygame.key.get_pressed()
+
+        # Check for collisions
         if tank1_sprite.tank.bullet.pos[1] > tank1_sprite.get_bottom_pos():
-            tank1_sprite.tank.bullet.shooting = False
-            bullet1_sprite.image.set_alpha(0)
+            tank1_sprite.tank.bulletHit = True
         if tank2_sprite.tank.bullet.pos[1] > tank2_sprite.get_bottom_pos():
-            tank2_sprite.tank.bullet.shooting = False
-            bullet2_sprite.image.set_alpha(0)
+            tank2_sprite.tank.bulletHit = True
+
+        # Switches players
+        if not tank1_sprite.tank.current_player and current_player == 1:
+            current_player = 2
+            tank2_sprite.tank.current_player = True
+        elif not tank2_sprite.tank.current_player and current_player == 2:
+            current_player = 1
+            tank1_sprite.tank.current_player = True
+
+        tank1_sprite.tank.update(keys)
+        tank2_sprite.tank.update(keys)
 
         # Fill screen
         screen.fill(colors.AZURE)

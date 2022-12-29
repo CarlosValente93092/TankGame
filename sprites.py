@@ -1,10 +1,10 @@
+# Third-party imports
 import pygame
-from spritesheet import SpriteSheet
+
+# Local imports
 from bullet import Bullet
 from tank import Tank
 from terrain import Terrain
-
-CELL_SIZE = 64
 
 
 class BaseSprite(pygame.sprite.Sprite):
@@ -25,7 +25,6 @@ class BulletSprite(BaseSprite):
         self.image = pygame.image.load("images/bullet.png").convert()
         self.image.set_colorkey(self.image.get_at((0, 0)))
         self.rect = self.image.get_rect()  # gets rect from surface
-        self.image.set_alpha(0)
 
     def update(self):
         self.rect.topleft = self.bullet.pos
@@ -39,6 +38,8 @@ class TankSprite(BaseSprite):
         self.image = pygame.image.load("images/tank.png").convert()
         self.image.set_colorkey(self.image.get_at((0, 0)))
         self.rect = self.image.get_rect()  # gets rect from surface
+        self.tank.set_center_pos(self.rect.center)
+        self.tank.bullet.set_pos(self.tank.center_pos)
 
     def update(self):
         self.rect.topleft = self.tank.pos
