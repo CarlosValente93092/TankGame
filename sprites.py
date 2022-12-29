@@ -25,6 +25,7 @@ class BulletSprite(BaseSprite):
         self.image = pygame.image.load("images/bullet.png").convert()
         self.image.set_colorkey(self.image.get_at((0, 0)))
         self.rect = self.image.get_rect()  # gets rect from surface
+        self.rect.topleft = self.bullet.pos
 
     def update(self):
         self.rect.topleft = self.bullet.pos
@@ -38,6 +39,7 @@ class TankSprite(BaseSprite):
         self.image = pygame.image.load("images/tank.png").convert()
         self.image.set_colorkey(self.image.get_at((0, 0)))
         self.rect = self.image.get_rect()  # gets rect from surface
+        self.rect.topleft = self.tank.pos
         self.tank.set_center_pos(self.rect.center)
         self.tank.bullet.set_pos(self.tank.center_pos)
 

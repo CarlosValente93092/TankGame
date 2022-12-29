@@ -11,6 +11,10 @@ from sprites import BulletSprite, TankSprite, TerrainSprite
 import colors
 
 
+def check_off_limits(gameWidth: int, rect_centerx: int):
+    return rect_centerx > gameWidth or rect_centerx < 0
+
+
 def main(WIDTH, HEIGHT, SCALE):
     # Initialize Pygame
     pygame.init()
@@ -37,6 +41,12 @@ def main(WIDTH, HEIGHT, SCALE):
     all_sprites = pygame.sprite.Group()
     all_sprites.add(bullet1_sprite, bullet2_sprite, tank1_sprite, tank2_sprite, terrain_sprite)
 
+    # Establish first frame positions
+    tank1_sprite.update()
+    tank2_sprite.update()
+    bullet1_sprite.update()
+    bullet2_sprite.update()
+
     # Tank 1 starts the game
     tank1_sprite.tank.current_player = True
     current_player = 1
@@ -56,9 +66,18 @@ def main(WIDTH, HEIGHT, SCALE):
         keys = pygame.key.get_pressed()
 
         # Check for collisions
-        if tank1_sprite.tank.bullet.pos[1] > tank1_sprite.get_bottom_pos():
+        if check_off_limits(WIDTH*SCALE, bullet1_sprite.rect.centerx):
             tank1_sprite.tank.bulletHit = True
-        if tank2_sprite.tank.bullet.pos[1] > tank2_sprite.get_bottom_pos():
+        if bullet1_sprite.rect.colliderect(tank2_sprite.rect):
+            tank1_sprite.tank.bulletHit = True
+        if bullet1_sprite.rect.colliderect(terrain_sprite.rect):
+            tank1_sprite.tank.bulletHit = True
+
+        if check_off_limits(WIDTH*SCALE, bullet2_sprite.rect.centerx):
+            tank2_sprite.tank.bulletHit = True
+        if bullet2_sprite.rect.colliderect(tank1_sprite.rect):
+            tank2_sprite.tank.bulletHit = True
+        if bullet2_sprite.rect.colliderect(terrain_sprite.rect):
             tank2_sprite.tank.bulletHit = True
 
         # Switches players

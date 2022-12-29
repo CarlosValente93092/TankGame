@@ -1,53 +1,43 @@
 import pygame
-import math
 
-# Set up Pygame
+# Initialize Pygame
 pygame.init()
-screen = pygame.display.set_mode((640, 480))
 
-# Set up the projectile sprite (a circle in this case)
-projectile_radius = 25
+# Set up the screen
+screen = pygame.display.set_mode((400, 300))
 
-# Set up initial position, angle, and power
-initial_position = (100, 480)
-angle = - 10 * math.pi / 21  # 45 degrees in radians
-power = 300  # pixels per second
+# Set up the projectile
+projectile = pygame.Rect(100, 100, 10, 10)
+speed = (5, 5)
+trail = []
+counter = 0
 
-# Calculate the initial velocity
-vx = power * math.cos(angle)
-vy = power * math.sin(angle)
-velocity = (vx, vy)
+# Run the game loop
+running = True
+while running:
+    # Update the projectile position
+    projectile.x += speed[0]
+    projectile.y += speed[1]
 
-# Set up acceleration (constant in this case)
-acceleration = (0, 2000)  # pixels per second squared
+    # Add the projectile position to the trail
+    counter += 1
+    if counter % 1000 == 0:  # only add a position every tenth frame
+        trail.append((projectile.x, projectile.y))
 
-# Set up the clock to control the frame rate
-clock = pygame.time.Clock()
+    # Draw the trail
+    if trail:
+        for pos in trail:
+            pygame.draw.circle(screen, (255, 255, 255), pos, 2)
 
-dt = 0.02
-elapsed_time = 0
-# Main game loop
-while True:
-    # Handle events
+    # Draw the projectile
+    pygame.draw.rect(screen, (255, 255, 255), projectile)
+
+    # Check for events
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            pygame.quit()
+            running = False
 
-    # Calculate the elapsed time in seconds
-    elapsed_time = elapsed_time + dt
-
-    # Calculate the new position of the projectile
-    x, y = initial_position
-    vx, vy = velocity
-    ax, ay = acceleration
-    x += vx * elapsed_time + 0.5 * ax * elapsed_time**2
-    y += vy * elapsed_time + 0.5 * ay * elapsed_time**2
-
-    # Update the initial position
-    initial_position = (x, y)
-
-    # Draw the projectile (a circle in this case)
-    screen.fill((0, 0, 0))
-    pygame.draw.circle(screen, (255, 0, 0), (int(x), int(y)), projectile_radius)
+    # Update the screen
     pygame.display.flip()
-    clock.tick(15)
+
+# Quit Pygame
