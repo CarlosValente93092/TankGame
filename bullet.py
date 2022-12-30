@@ -51,9 +51,10 @@ class Bullet:
 
     def set_bullet_hit_position(self, tank_hit=False, pos=None) -> None:
         '''Updates bullet's hit position'''
-        # Update bullet last position
+        # Update bullet last position to new position when bullet hits terrain
         if pos:
             self.bullet_hit_position = pos
+        # If bullet hits any tank, then update to last bullet position
         elif tank_hit:
             self.bullet_hit_position = self.pos
 

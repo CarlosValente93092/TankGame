@@ -16,6 +16,12 @@ SOUND_PLAYED_ONCE: bool = True
 
 
 def intersection(line1, line2):
+    ''' Calculate the intersection point between two lines. Each line is represented 
+    by a tuple of four elements (x1, y1, x2, y2) that correspond to the coordinates 
+    of the two points that define the line. The function returns a tuple with the 
+    coordinates of the intersection point if the lines intersect, or None if the 
+    lines are parallel or don't intersect.
+    '''
     # Extract the points from the lines
     x1, y1, x2, y2 = line1
     x3, y3, x4, y4 = line2
@@ -28,6 +34,7 @@ def intersection(line1, line2):
         t = ((x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x4)) / denom
         u = -((x1 - x2) * (y1 - y3) - (y1 - y2) * (x1 - x3)) / denom
         if 0 <= t <= 1 and 0 <= u <= 1:
+            # Calculate the intersection point
             x = x1 + t * (x2 - x1)
             y = y1 + t * (y2 - y1)
             return (x, y)
@@ -41,23 +48,23 @@ def check_off_limits(gameWidth: int, rect_centerx: int) -> bool:
 
 
 def bullet_hit_animation(start_animation: bool, screen: pygame.Surface, sound: pygame.mixer.Sound, image: pygame.Surface, position: tuple[int, int]):
+    """Plays bullet hit animation and sound"""
     global FRAMES, FRAME_LIMIT, SOUND_PLAYED_ONCE
     if not start_animation:
         return False
 
     if SOUND_PLAYED_ONCE:
-        # Play explosion sound
+        # Play explosion sound once per animation
         sound.play()
         # Reset flag to only play sound once per explosion
         SOUND_PLAYED_ONCE = False
     # Draw explosion image on the screen
     screen.blit(image, position)
-    # image_width, image_height = image.get_size()
-    # screen.blit(image, (position[0]-image_width//2, position[1]-image_height//2))
-    # Increse frames
+    # Increase frames
     FRAMES += 1
-    # If total of frames per animation reaches FRAME_LIMIT, corresponds to 1 seconds
+    # If total of frames per animation reaches FRAME_LIMIT, corresponds to 1 second
     if FRAMES == FRAME_LIMIT:
+        # Reset sound played flag and frames counter
         SOUND_PLAYED_ONCE = True
         FRAMES = 0
         return True
