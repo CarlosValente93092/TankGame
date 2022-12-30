@@ -10,8 +10,10 @@ from fsm import FSM, STATES, TRANSITIONS, Event
 
 class Tank:
     def __init__(self, pos: Tuple[int, int], controls: int) -> None:
-        # Set the static health of the tank to 100
-        self.health: int = 100
+        # Set the static max health of the tank to 100
+        self.max_health: int = 100
+        # Set the health of the tank to its max
+        self.health: int = self.max_health
         # Set the position of the tank
         self.pos: Tuple[int, int] = pos
         # Create a bullet entity for the tank
@@ -19,7 +21,7 @@ class Tank:
         # Set the initial angle to shoot the bullet
         self.bullet_angle: float = -math.pi/4
         # Set the initial power to shoot the bullet
-        self.bullet_power: int = 50
+        self.bullet_power: float = 50
         # Create a finite state machine for the tank
         self.fsm: FSM = FSM(STATES, TRANSITIONS)
         # Create an input handler for the tank
@@ -105,7 +107,7 @@ class Tank:
         elif self.bullet_power < 0:
             self.bullet_power = 0
 
-    def calculate_damage(self, bullet_pos: Tuple[int, int], bullet_type):
+    def calculate_damage(self, bullet_pos: Tuple[int, int], bullet_type=0):
         distance = self.distance(bullet_pos, self.center_pos)
         # Use some arbitrary constants to tune the damage formula
         # damage coefficient is set to the minimum distance to the center of the tank from any point of the tank's rect

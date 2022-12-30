@@ -86,7 +86,7 @@ class Idle(State):
         # Reset the bullet position to be inside tank
         tank.bullet.set_pos(tank.center_pos)
         # Reset bulletHit to indicate bullet is stopped
-        tank.bulletHit = 0
+        tank.bulletHit = False
         # Reset bullet.shooting indicating it is not on air
         tank.bullet.shooting = False
         # Set the current_player flag to False

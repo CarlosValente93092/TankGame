@@ -2,12 +2,12 @@ import pygame
 from typing import List, Dict, Type
 
 # Constants representing the values that will be added to the angle or power of the bullet, or the movement of the tank
-VALUE_ANGLE_LEFT = -0.05
-VALUE_ANGLE_RIGHT = -VALUE_ANGLE_LEFT
-VALUE_MOVE_LEFT = (-1, 0)
-VALUE_MOVE_RIGHT = (-VALUE_MOVE_LEFT[0], VALUE_MOVE_LEFT[1])
-VALUE_POWER_DOWN = -1
-VALUE_POWER_UP = -VALUE_POWER_DOWN
+VALUE_ANGLE_LEFT: float = -0.01
+VALUE_ANGLE_RIGHT: float = -VALUE_ANGLE_LEFT
+VALUE_MOVE_LEFT: tuple[int, int] = (-1, 0)
+VALUE_MOVE_RIGHT: tuple[int, int] = (-VALUE_MOVE_LEFT[0], VALUE_MOVE_LEFT[1])
+VALUE_POWER_DOWN: float = -0.5
+VALUE_POWER_UP: float = -VALUE_POWER_DOWN
 
 
 class Command:

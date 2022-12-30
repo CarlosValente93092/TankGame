@@ -29,7 +29,7 @@ class BulletSprite(BaseSprite):
         # The bullet object associated with this sprite
         self.bullet: Bullet = bullet
         # Load the image for the bullet
-        self.image: pygame.image = pygame.image.load("images/bullet.png").convert()
+        self.image: pygame.Surface = pygame.image.load("images/bullet.png").convert()
         # Set the colorkey for the image, which will be transparent when drawn
         self.image.set_colorkey(self.image.get_at((0, 0)))
         # Create a rect based on the image
@@ -51,12 +51,15 @@ class TankSprite(BaseSprite):
         # Set attribute "tank" to the passed Tank object
         self.tank: Tank = tank
         # Load image for sprite and set its colorkey to the color of the top left pixel
-        self.image: pygame.image = pygame.image.load("images/tank.png").convert()
+        self.image: pygame.Surface = pygame.image.load("images/tank.png").convert()
         self.image.set_colorkey(self.image.get_at((0, 0)))
         # Get a rectangular area that encloses the sprite image
         self.rect: pygame.Rect = self.image.get_rect()
         # Set the top left corner of the rectangular area to the position of the Tank object
         self.rect.topleft: Tuple[int, int] = self.tank.pos
+        # WANT 43x21, HAVE 71x37
+        new_width, new_height = 43, 21
+        self.rect = self.rect.move(new_width - self.rect.width, new_height - self.rect.height)
         # Set the center position of the Tank object to the center of the rectangular area
         self.tank.set_center_pos(self.rect.center)
         # Set the position of the bullet in the Tank object to the center position of the Tank object
@@ -82,7 +85,7 @@ class TerrainSprite(BaseSprite):
         # Assign terrain object to sprite
         self.terrain: Terrain = terrain
         # Scale the image based on the terrain width and height
-        self.image: pygame.image = pygame.transform.scale(self.image, (self.terrain.width, self.terrain.height))
+        self.image: pygame.Surface = pygame.transform.scale(self.image, (self.terrain.width, self.terrain.height))
         # Get the rect of the image and move the rect to the y position of the terrain
         self.rect: pygame.Rect = self.image.get_rect().move((0, self.terrain.ypos))
         # Fill the image with the terrain color

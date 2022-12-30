@@ -10,16 +10,22 @@ class Bullet:
         # Set the initial x and y position of the bullet
         self.pos: Tuple[int, int] = pos
         # Set the time step (how often the bullet position is updated)
-        self.time_step: float = 0.05
+        self.time_step: float = 0.02
         # Set the initial time
         self.time: float = 0
         # Set flag to identify bullet is moving or stopped
         self.shooting: bool = False
+        # Define bullet last position
+        self.last_pos: Tuple[int, int] = self.pos
+        # Define bullets hit point
+        self.bullet_hit_position: Tuple[int, int] = self.pos
 
-    def shoot(self, pos: Tuple[int, int], angle: float = -math.pi/4, power: int = 50) -> None:
+    def shoot(self, pos: Tuple[int, int], angle: float = -math.pi/4, power: float = 50) -> None:
         '''Function to reset bullets parameters to be ready to be shot'''
         # Redefine bullet to position to tank's position
         self.pos = pos
+        # Redefine bullet last position to tank's position
+        self.last_pos = pos
         # Bullet is now on the move
         self.shooting = True
         # Reset time bullet is on air
@@ -27,13 +33,15 @@ class Bullet:
         # Set bullet angle
         self.angle: float = angle
         # Set bullet power
-        self.power: int = power
+        self.power: float = power/100
         # Set initial velocity
         self.velocity: float = (power * math.cos(angle), power * math.sin(angle))
 
     def update(self) -> None:
         '''Updates the bullets position according to angle, power and gravity while bullet is on air'''
         if (self.shooting):
+            # Update bullet's last position
+            self.last_pos = self.pos
             # Update the x and y position of the bullet
             self.pos = (self.pos[0] + self.velocity[0] * self.time + 0.5 * 0 * self.time**2,
                         self.pos[1] + self.velocity[1] * self.time + 0.5 * self.gravity * self.time**2)
@@ -41,7 +49,15 @@ class Bullet:
             # Increase the time
             self.time += self.time_step
 
+    def set_bullet_hit_position(self, tank_hit=False, pos=None) -> None:
+        '''Updates bullet's hit position'''
+        # Update bullet last position
+        if pos:
+            self.bullet_hit_position = pos
+        elif tank_hit:
+            self.bullet_hit_position = self.pos
+
     def set_pos(self, pos) -> None:
-        '''Updates bullets position'''
+        '''Updates bullet's position'''
         # Update bullet position
         self.pos = pos
