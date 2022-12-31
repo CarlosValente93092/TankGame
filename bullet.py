@@ -19,6 +19,12 @@ class Bullet:
         self.last_pos: Tuple[int, int] = self.pos
         # Define bullets hit point
         self.bullet_hit_position: Tuple[int, int] = self.pos
+        # Set bullet angle
+        self.angle: float = 0
+        # Set bullet power
+        self.power: float = 0
+        # Set initial velocity
+        self.velocity: Tuple[float, float] = (0, 0)
 
     def shoot(self, pos: Tuple[int, int], angle: float = -math.pi/4, power: float = 50) -> None:
         '''Function to reset bullets parameters to be ready to be shot'''
@@ -33,9 +39,9 @@ class Bullet:
         # Set bullet angle
         self.angle: float = angle
         # Set bullet power
-        self.power: float = power/100
+        self.power: float = power*0.75
         # Set initial velocity
-        self.velocity: float = (power * math.cos(angle), power * math.sin(angle))
+        self.velocity: Tuple[float, float] = (self.power * math.cos(self.angle), self.power * math.sin(self.angle))
 
     def update(self) -> None:
         '''Updates the bullets position according to angle, power and gravity while bullet is on air'''

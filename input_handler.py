@@ -89,6 +89,7 @@ class POWER_UP(Command):
 
 class MOVE_LEFT(Command):
     def execute(self, actor):
+        """Move the actor to the left"""
         # Save reference to actor
         self.actor = actor
         # Call move method on actor with VALUE_MOVE_LEFT as parameter
@@ -98,12 +99,16 @@ class MOVE_LEFT(Command):
 class MOVE_RIGHT(Command):
     def execute(self, actor):
         """Move the actor to the right"""
+        # Save reference to actor
         self.actor = actor
+        # Call move method on actor with VALUE_MOVE_RIGHT as parameter
         actor.move(VALUE_MOVE_RIGHT)
 
 
 class SHOOT(Command):
     def execute(self, actor):
         """Make the actor shoot a bullet"""
+        # Save reference to actor
         self.actor = actor
+        # Call shoot method on actor
         actor.shoot()

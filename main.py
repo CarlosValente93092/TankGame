@@ -2,13 +2,16 @@
 import math
 import random
 import pygame
+import pickle
+import sys
 import time
 
 # Local imports
-from tank import Tank
+from tank import Tank, Tank_Spawner
 from terrain import Terrain
 from sprites import BulletSprite, TankSprite, TerrainSprite
 import colors
+from multicast_transceiver import createReceiverSocket, createSenderSocket, sendMessage
 
 FRAMES: int = 0
 FRAME_LIMIT: int = 60
@@ -91,9 +94,19 @@ def main(WIDTH, HEIGHT, SCALE) -> None:
     # Create a Pygame clock to control the frame rate
     clock: pygame.time.Clock = pygame.time.Clock()
 
-    # Create player tank
-    tank1_sprite: TankSprite = TankSprite(Tank((WIDTH*SCALE/4, 3*HEIGHT*SCALE/4), 1), SCALE)
-    tank2_sprite: TankSprite = TankSprite(Tank((3*WIDTH*SCALE/4, 3*HEIGHT*SCALE/4), 2), SCALE)
+    # Create players tank
+    TankSpawner = Tank_Spawner()
+    tank_base = Tank((-10, -10), controls=1)
+    tank1_sprite: TankSprite = TankSprite(TankSpawner.spawn_tank(tank_base), SCALE)
+    tank2_sprite: TankSprite = TankSprite(TankSpawner.spawn_tank(tank_base), SCALE)
+    tank1_sprite.tank.set_pos((WIDTH*SCALE/4, 3*HEIGHT*SCALE/4))\
+        .set_controls(1)\
+        .set_tank_name(USERNAME)
+    tank2_sprite.tank.set_pos((3*WIDTH*SCALE/4, 3*HEIGHT*SCALE/4))\
+        .set_controls(2)\
+        .set_tank_name("Ines")
+    tank1_sprite.update_center_pos()
+    tank2_sprite.update_center_pos()
     # Create terrain for tanks to move
     terrain_sprite = TerrainSprite(Terrain(WIDTH, HEIGHT, SCALE, colors.GREEN, tank1_sprite.get_bottom_pos()), SCALE)
     # Create bullet sprites for tanks
@@ -108,6 +121,10 @@ def main(WIDTH, HEIGHT, SCALE) -> None:
     tank2_sprite.update()
     bullet1_sprite.update()
     bullet2_sprite.update()
+
+    senderSocket = createSenderSocket()
+    receiverSocket = createReceiverSocket()
+    receiverSocket.setblocking(False)
 
     # Choose a random player to start
     current_player: int = random.randint(1, 2)
@@ -137,6 +154,16 @@ def main(WIDTH, HEIGHT, SCALE) -> None:
     # Run the game loop
     running: bool = True
     while running:
+        try:
+            input_keys = [False]*512
+            if (msg := receiverSocket.recvfrom(8192)):
+                userCommand: dict = pickle.loads(msg[0])
+                input_username: str = userCommand.get('user')
+                if (input_username is not USERNAME):
+                    input_keys: list[int] = userCommand.get('keys')
+        except BlockingIOError:
+            pass
+
         # Handle events
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -149,7 +176,10 @@ def main(WIDTH, HEIGHT, SCALE) -> None:
 
         # Update the game logic
         # Retrieve all keys that are being pressed
-        keys = pygame.key.get_pressed()
+        keys_pressed: pygame.key.ScancodeWrapper = pygame.key.get_pressed()
+        keys: pygame.key.ScancodeWrapper = pygame.key.ScancodeWrapper([a or b for a, b in zip(keys_pressed, input_keys)])
+        if any(keys_pressed):
+            sendMessage(senderSocket, pickle.dumps({'user': USERNAME, 'keys': keys}))
 
         # Check for collisions
         # Check if bullet1 is off the limits of the screen
@@ -274,6 +304,9 @@ if __name__ == "__main__":
     # Initialize pygame mixer
     pygame.mixer.init()
 
+    # Get player name
+    USERNAME: str = str(input("Insert your name: "))
+    USER_ID: int = random.random()*sys.maxsize
     # Enter game
     while True:
         if main(64, 48, 10):

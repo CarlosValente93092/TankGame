@@ -59,10 +59,6 @@ class TankSprite(BaseSprite):
         self.rect: pygame.Rect = self.image.get_rect()
         # Set the top left corner of the rectangular area to the position of the Tank object
         self.rect.topleft: Tuple[int, int] = self.tank.pos
-        # Set the center position of the Tank object to the center of the rectangular area
-        self.tank.set_center_pos(self.rect.center)
-        # Set the position of the bullet in the Tank object to the center position of the Tank object
-        self.tank.bullet.set_pos(self.tank.center_pos)
         # Define health bar size to draw
         self.health_bar_size: Tuple[int, int] = (40, 4)
         # Define tank's name font
@@ -70,7 +66,17 @@ class TankSprite(BaseSprite):
         # Rendered text of tank's name
         self.text_name = self.font.render(f"{self.tank.name}", True, colors.BLACK)
 
+    def update_center_pos(self) -> None:
+        # Set the top left corner of the rectangular area to the position of the Tank object
+        self.rect.topleft: Tuple[int, int] = self.tank.pos
+        # Set the center position of the Tank object to the center of the rectangular area
+        self.tank.set_center_pos(self.rect.center)
+        # Set the position of the bullet in the Tank object to the center position of the Tank object
+        self.tank.bullet.set_pos(self.tank.center_pos)
+
     def draw_name(self, screen: pygame.Surface):
+        # Rendered text of tank's name
+        self.text_name = self.font.render(f"{self.tank.name}", True, colors.BLACK)
         # Get the dimensions of the rendered text
         text_rect = self.text_name.get_rect()
         # Set the position of the text so it is centered on the screen

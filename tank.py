@@ -35,6 +35,16 @@ class Tank:
         # Set the flag for when the bullet has hit something to False
         self.bulletHit: bool = False
 
+    def set_pos(self, pos: Tuple[int, int]) -> "Tank":
+        """Set the position of the tank."""
+        self.pos = pos
+        return self
+
+    def set_controls(self, controls) -> "Tank":
+        """Set the controls for the tank."""
+        self.controls = controls
+        return self
+
     def get_controls(self) -> List[int]:
         '''Returns the controls for the current player'''
         # Return controls for player 1 if self.controls is 1, otherwise return controls for player 2
@@ -56,6 +66,8 @@ class Tank:
         '''Updates tank actions'''
         # Get input commands inserted by the player
         self.commands: Dict[int, Type[Command]] = self.IH.update(events)
+        if (self.commands):
+            pass
         event = None
 
         # Check the current state of the tank
@@ -128,9 +140,21 @@ class Tank:
         self.health -= damage
 
     # Distance function
-    def distance(self, coord1: Tuple[int, int], coord2: Tuple[int, int]):
+    def distance(self, coord1: Tuple[int, int], coord2: Tuple[int, int]) -> Tuple[int, int]:
         return math.sqrt((coord1[0]-coord2[0])*(coord1[0]-coord2[0]) + (coord1[1]-coord2[1])*(coord1[1]-coord2[1]))
 
-    def set_tank_name(self, name):
+    def set_tank_name(self, name) -> "Tank":
         '''Sets tank's name'''
         self.name = name
+        return self
+
+    def clone(self) -> "Tank":
+        return Tank(self.pos, self.controls)
+
+
+class Tank_Spawner:
+    def __init__(self) -> None:
+        pass
+
+    def spawn_tank(self, prototype: Tank) -> Tank:
+        return prototype.clone()
