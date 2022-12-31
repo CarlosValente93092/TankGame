@@ -9,7 +9,9 @@ from fsm import FSM, STATES, TRANSITIONS, Event
 
 
 class Tank:
-    def __init__(self, pos: Tuple[int, int], controls: int) -> None:
+    def __init__(self, pos: Tuple[int, int], controls: int = 1) -> None:
+        # Set tank's name
+        self.name = f"Tank {controls}"
         # Set the static max health of the tank to 100
         self.max_health: int = 100
         # Set the health of the tank to its max
@@ -108,6 +110,7 @@ class Tank:
             self.bullet_power = 0
 
     def calculate_damage(self, bullet_pos: Tuple[int, int], bullet_type=0):
+        '''Calculate the damage done to other tank based on distance (and bullet type)'''
         distance = self.distance(bullet_pos, self.center_pos)
         # Use some arbitrary constants to tune the damage formula
         # damage coefficient is set to the minimum distance to the center of the tank from any point of the tank's rect
@@ -116,7 +119,7 @@ class Tank:
         max_damage = 40
 
         # Calculate the damage based on distance
-        if distance > 100:
+        if distance > 50:
             damage = 0
         else:
             damage = min((1/(distance*distance)) * damage_coefficient * max_damage, max_damage)
@@ -127,3 +130,7 @@ class Tank:
     # Distance function
     def distance(self, coord1: Tuple[int, int], coord2: Tuple[int, int]):
         return math.sqrt((coord1[0]-coord2[0])*(coord1[0]-coord2[0]) + (coord1[1]-coord2[1])*(coord1[1]-coord2[1]))
+
+    def set_tank_name(self, name):
+        '''Sets tank's name'''
+        self.name = name

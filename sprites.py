@@ -6,6 +6,7 @@ from bullet import Bullet
 from tank import Tank
 from terrain import Terrain
 from typing import Tuple
+import colors
 
 
 class BaseSprite(pygame.sprite.Sprite):
@@ -52,7 +53,7 @@ class TankSprite(BaseSprite):
         # Set attribute "tank" to the passed Tank object
         self.tank: Tank = tank
         # Load image for sprite and set its colorkey to the color of the top left pixel
-        self.image: pygame.Surface = pygame.image.load("images/tank.png").convert()
+        self.image: pygame.Surface = pygame.image.load("images/tank.png").convert_alpha()
         self.image.set_colorkey(self.image.get_at((0, 0)))
         # Get a rectangular area that encloses the sprite image
         self.rect: pygame.Rect = self.image.get_rect()
@@ -62,6 +63,27 @@ class TankSprite(BaseSprite):
         self.tank.set_center_pos(self.rect.center)
         # Set the position of the bullet in the Tank object to the center position of the Tank object
         self.tank.bullet.set_pos(self.tank.center_pos)
+        # Define health bar size to draw
+        self.health_bar_size: Tuple[int, int] = (40, 4)
+        # Define tank's name font
+        self.font = pygame.font.Font(None, int(1.5*self.scale))
+        # Rendered text of tank's name
+        self.text_name = self.font.render(f"{self.tank.name}", True, colors.BLACK)
+
+    def draw_name(self, screen: pygame.Surface):
+        # Get the dimensions of the rendered text
+        text_rect = self.text_name.get_rect()
+        # Set the position of the text so it is centered on the screen
+        text_rect.center = (self.rect.centerx, self.rect.top-self.health_bar_size[1]-text_rect.height/2)
+        screen.blit(self.text_name, text_rect)
+
+    def draw_health(self, screen: pygame.Surface) -> None:
+        pygame.draw.rect(screen, colors.RED,
+                         pygame.Rect(self.rect.centerx, self.rect.top, (self.health_bar_size[0])*self.tank.health/self.tank.max_health, 2*self.health_bar_size[1])
+                         .move(-self.health_bar_size[0]/2, -self.health_bar_size[1]))
+        pygame.draw.rect(screen, colors.BLACK,
+                         pygame.Rect(self.rect.centerx, self.rect.top, self.health_bar_size[0], 2*self.health_bar_size[1])
+                         .move(-self.health_bar_size[0]/2, -self.health_bar_size[1]), width=1)
 
     def update(self) -> None:
         '''Update sprite's position and Tank object's center position'''
@@ -69,6 +91,16 @@ class TankSprite(BaseSprite):
         self.rect.topleft = self.tank.pos
         # Set the center position of the Tank object to the center of the rectangular area
         self.tank.set_center_pos(self.rect.center)
+        if (self.tank.health <= 0):
+            self.image: pygame.Surface = pygame.image.load("images/Tank_Explosion_4.png").convert_alpha()
+        elif (self.tank.health < 0.1 * self.tank.max_health):
+            self.image: pygame.Surface = pygame.image.load("images/Tank_Explosion_3.png").convert_alpha()
+        elif (self.tank.health < 0.25 * self.tank.max_health):
+            self.image: pygame.Surface = pygame.image.load("images/Tank_Explosion_2.png").convert_alpha()
+        elif (self.tank.health < 0.5 * self.tank.max_health):
+            self.image: pygame.Surface = pygame.image.load("images/Tank_Explosion_1.png").convert_alpha()
+        elif (self.tank.health < 0.75 * self.tank.max_health):
+            self.image: pygame.Surface = pygame.image.load("images/Tank_Explosion_0.png").convert_alpha()
 
     def get_bottom_pos(self) -> int:
         '''Return the y-coordinate of the bottom of the sprite'''
@@ -82,9 +114,9 @@ class TerrainSprite(BaseSprite):
 
         # Assign terrain object to sprite
         self.terrain: Terrain = terrain
-        # Scale the image based on the terrain width and height
-        self.image: pygame.Surface = pygame.transform.scale(self.image, (self.terrain.width, self.terrain.height))
+        # Load terrain image for sprite
+        self.image: pygame.Surface = pygame.image.load("images/grass_dirt_block.png").convert()
+        # Scale image to terrain dimensions
+        self.image = pygame.transform.scale(self.image, (terrain.width, terrain.height))
         # Get the rect of the image and move the rect to the y position of the terrain
         self.rect: pygame.Rect = self.image.get_rect().move((0, self.terrain.ypos))
-        # Fill the image with the terrain color
-        self.image.fill(self.terrain.color)

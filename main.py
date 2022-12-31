@@ -16,10 +16,10 @@ SOUND_PLAYED_ONCE: bool = True
 
 
 def intersection(line1, line2):
-    ''' Calculate the intersection point between two lines. Each line is represented 
-    by a tuple of four elements (x1, y1, x2, y2) that correspond to the coordinates 
-    of the two points that define the line. The function returns a tuple with the 
-    coordinates of the intersection point if the lines intersect, or None if the 
+    ''' Calculate the intersection point between two lines. Each line is represented
+    by a tuple of four elements (x1, y1, x2, y2) that correspond to the coordinates
+    of the two points that define the line. The function returns a tuple with the
+    coordinates of the intersection point if the lines intersect, or None if the
     lines are parallel or don't intersect.
     '''
     # Extract the points from the lines
@@ -73,8 +73,6 @@ def bullet_hit_animation(start_animation: bool, screen: pygame.Surface, sound: p
 
 
 def main(WIDTH, HEIGHT, SCALE) -> None:
-    # Initialize Pygame
-    pygame.init()
     # Create the window
     screen: pygame.Surface = pygame.display.set_mode((WIDTH*SCALE, HEIGHT*SCALE))
     # Set the title of the window
@@ -82,10 +80,10 @@ def main(WIDTH, HEIGHT, SCALE) -> None:
     # Load background image
     background_image: pygame.Surface = pygame.image.load("images/sky_background.png")
     background_image_offset = random.randint(0, background_image.get_size()[0] - WIDTH*SCALE)
+    background_image = pygame.transform.scale(background_image, (background_image.get_width(), HEIGHT*(SCALE+1)))
     # Set the key repeat delay and interval
     pygame.key.set_repeat(50, 50)
-    # Initialize pygame mixer and load explosion sound
-    pygame.mixer.init()
+    # Load explosion sound
     explosion_sound: pygame.mixer.Sound = pygame.mixer.Sound("images/explosion.wav")
     # Load explosion image
     explosion_image: pygame.Surface = pygame.image.load("images/explosion.png").convert_alpha()
@@ -124,8 +122,18 @@ def main(WIDTH, HEIGHT, SCALE) -> None:
     # Explosion animation flags
     bullet_1_explosion: bool = False
     bullet_2_explosion: bool = False
-    # Set health bar size
-    health_bar_size: int = 20
+    # Create a font object to use for drawing text
+    font = pygame.font.Font(None, 36)
+    # Signal to indicate game ended and present game over screen
+    game_over = False
+    # Variable that holds tank's ID of game winner
+    game_winner = 0
+    # Create a text surface to display the score
+    text = font.render(f"Tank {game_winner} Won", True, colors.BLACK)
+    # Get the dimensions of the rendered text
+    text_rect = text.get_rect()
+    # Set the position of the text so it is centered on the screen
+    text_rect.center = (WIDTH*SCALE // 2, HEIGHT*SCALE // 2)
     # Run the game loop
     running: bool = True
     while running:
@@ -138,6 +146,7 @@ def main(WIDTH, HEIGHT, SCALE) -> None:
                     running = False
                 if event.key == pygame.K_r:
                     return False
+
         # Update the game logic
         # Retrieve all keys that are being pressed
         keys = pygame.key.get_pressed()
@@ -206,9 +215,11 @@ def main(WIDTH, HEIGHT, SCALE) -> None:
 
         # Update tank information
         if not tank1_sprite.tank.update(keys):
-            print("Tank 1 destroyed")
+            game_over = True
+            game_winner = 2
         if not tank2_sprite.tank.update(keys):
-            print("Tank 2 destroyed")
+            game_over = True
+            game_winner = 1
 
         # Draw the background image onto the window
         screen.blit(background_image, (-background_image_offset, 0))
@@ -219,27 +230,35 @@ def main(WIDTH, HEIGHT, SCALE) -> None:
         all_sprites.draw(screen)
 
         # Draw preview lines for tank's bullets
-        if current_player == 1:
+        if current_player == 1 and not game_over:
             pygame.draw.line(screen, colors.BLACK, tank1_sprite.rect.center, (
                 tank1_sprite.rect.center[0] + tank1_sprite.tank.bullet_power * math.cos(tank1_sprite.tank.bullet_angle),
                 tank1_sprite.rect.center[1] + tank1_sprite.tank.bullet_power * math.sin(tank1_sprite.tank.bullet_angle)))
-        elif current_player == 2:
+        elif current_player == 2 and not game_over:
             pygame.draw.line(screen, colors.BLACK, tank2_sprite.rect.center, (
                 tank2_sprite.rect.center[0] + tank2_sprite.tank.bullet_power * math.cos(tank2_sprite.tank.bullet_angle),
                 tank2_sprite.rect.center[1] + tank2_sprite.tank.bullet_power * math.sin(tank2_sprite.tank.bullet_angle)))
 
-        # Draw tank1's health
-        pygame.draw.rect(screen, colors.RED, pygame.Rect(0, 0, (health_bar_size*SCALE)*tank1_sprite.tank.health/tank1_sprite.tank.max_health, 2*SCALE))
-        pygame.draw.rect(screen, colors.BLACK, pygame.Rect(0, 0, health_bar_size*SCALE, 2*SCALE), width=1)
+        # Draw tank1's name
+        tank1_sprite.draw_name(screen)
+        # Draw tank2's name
+        tank2_sprite.draw_name(screen)
 
+        # Draw tank1's health
+        tank1_sprite.draw_health(screen)
         # Draw tank2's health
-        pygame.draw.rect(screen, colors.RED, pygame.Rect(WIDTH*SCALE-health_bar_size*SCALE, 0, (health_bar_size*SCALE)*tank2_sprite.tank.health/tank2_sprite.tank.max_health, 2*SCALE))
-        pygame.draw.rect(screen, colors.BLACK, pygame.Rect(WIDTH*SCALE-health_bar_size*SCALE, 0, health_bar_size*SCALE, 2*SCALE), width=1)
+        tank2_sprite.draw_health(screen)
 
         if bullet_hit_animation(bullet_1_explosion, screen, explosion_sound, explosion_image, bullet1_sprite.bullet.bullet_hit_position):
             bullet_1_explosion = False
         if bullet_hit_animation(bullet_2_explosion, screen, explosion_sound, explosion_image, bullet2_sprite.bullet.bullet_hit_position):
             bullet_2_explosion = False
+
+        if game_over:
+            # Create a text surface to display the score
+            text = font.render(f"Tank {game_winner} Won", True, colors.BLACK)
+            # Blit the text surface to the screen
+            screen.blit(text, text_rect)
 
         # Update screen
         pygame.display.flip()
@@ -250,8 +269,15 @@ def main(WIDTH, HEIGHT, SCALE) -> None:
 
 
 if __name__ == "__main__":
+    # Initialize Pygame
+    pygame.init()
+    # Initialize pygame mixer
+    pygame.mixer.init()
+
+    # Enter game
     while True:
         if main(64, 48, 10):
             break
+
     # Quit Pygame
     pygame.quit()
