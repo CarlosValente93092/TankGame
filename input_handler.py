@@ -46,13 +46,17 @@ class InputHandler:
         '''Returns a dictionary with the keys being the pygame key constants and the values being the commands to be executed, based on the events passed as parameter'''
         return {key: value for key, value in self.commands.items() if events[key]}
 
-    def get_controls_1(self) -> List[int]:
+    def get_controls_1(self, local_player: bool = True) -> List[int]:
         '''Returns a list with the keys representing the controls for player 1'''
-        return [pygame.K_q, pygame.K_w, pygame.K_e, pygame.K_a, pygame.K_s, pygame.K_d]
+        if local_player:
+            return [pygame.K_q, pygame.K_w, pygame.K_e, pygame.K_a, pygame.K_s, pygame.K_d]
+        return []
 
-    def get_controls_2(self) -> List[int]:
+    def get_controls_2(self, local_player: bool = True) -> List[int]:
         '''Returns a list with the keys representing the controls for player 2'''
-        return [pygame.K_u, pygame.K_i, pygame.K_o, pygame.K_j, pygame.K_k, pygame.K_l]
+        if local_player:
+            return [pygame.K_u, pygame.K_i, pygame.K_o, pygame.K_j, pygame.K_k, pygame.K_l]
+        return []
 
 
 class ANGLE_LEFT(Command):

@@ -34,6 +34,11 @@ class Tank:
         self.current_player: bool = False
         # Set the flag for when the bullet has hit something to False
         self.bulletHit: bool = False
+        # Define if tank is being controlled locally or remote (False or True, respectively)
+        self.local_player: bool = False
+
+    def set_local_player(self, state: bool) -> None:
+        self.local_player = state
 
     def set_pos(self, pos: Tuple[int, int]) -> "Tank":
         """Set the position of the tank."""
@@ -66,8 +71,6 @@ class Tank:
         '''Updates tank actions'''
         # Get input commands inserted by the player
         self.commands: Dict[int, Type[Command]] = self.IH.update(events)
-        if (self.commands):
-            pass
         event = None
 
         # Check the current state of the tank
