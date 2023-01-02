@@ -149,17 +149,17 @@ def main(WIDTH, HEIGHT, SCALE) -> None:
     # Set the position of the text so it is centered on the screen
     text_rect.center = (WIDTH*SCALE // 2, HEIGHT*SCALE // 2)
     # Run the game loop
-    running: bool = True
-    count = 0
-    current_player_flag = True
-    temp2 = True
-    temp3 = True
-    OTHER_PLAYER_ID = 0
-    OTHER_PLAYER_NAME = 'Tank 2'
-    GAME_STARTING = False
-    PLAYER = False  # False to player 1 and True to player 2
-    GAME_START = False
-    SYNC_COMPLETE = False
+    running: bool = True  # variable to control the game loop
+    count: int = 0  # variable to keep track of number of iterations
+    current_player_flag: bool = True  # variable to switch between players
+    ready_flag: bool = True  # variable to check if the player is ready to start
+    initialize_game_flag: bool = True  # variable to initialize the game
+    OTHER_PLAYER_ID: int = 0  # variable to store the ID of the other player
+    OTHER_PLAYER_NAME: str = 'Tank 2'  # variable to store the name of the other player
+    GAME_STARTING: bool = False  # variable to check if the game is starting
+    PLAYER: bool = False  # variable to store the player number (False for player 1 and True for player 2)
+    GAME_START: bool = False  # variable to check if the game has started
+    SYNC_COMPLETE: bool = False  # variable to check if the synchronization is complete
     while running:
 
         # Handle events
@@ -189,8 +189,8 @@ def main(WIDTH, HEIGHT, SCALE) -> None:
                 current_player_flag = False
                 # Choose a random player to start
                 current_player: int = random.randint(1, 2)
-            # If the temp2 flag is set and the user is not the player
-            elif temp2 and not PLAYER:
+            # If the ready_flag flag is set and the user is not the player
+            elif ready_flag and not PLAYER:
                 # If this is the first iteration of the loop
                 if count == 0:
                     # Send a message to the sender socket indicating the user is ready and the current player
@@ -209,8 +209,8 @@ def main(WIDTH, HEIGHT, SCALE) -> None:
                     count = FRAME_LIMIT
                 # Decrement the count
                 count -= 1
-            # If the temp3 flag is set
-            elif temp3:
+            # If the initialize_game_flag flag is set
+            elif initialize_game_flag:
                 # If the user is the player
                 if PLAYER:
                     # Set the name of the first tank to the user's name
@@ -219,6 +219,8 @@ def main(WIDTH, HEIGHT, SCALE) -> None:
                     tank2_sprite.tank.set_tank_name(OTHER_PLAYER_NAME)
                     # Set the second tank to be the local player
                     tank2_sprite.tank.set_local_player(True)
+                    # Set tank control to be qweasd
+                    tank2_sprite.tank.set_controls(1)
                 else:
                     # Set the name of the first tank to the other player's name
                     tank1_sprite.tank.set_tank_name(OTHER_PLAYER_NAME)
@@ -226,12 +228,14 @@ def main(WIDTH, HEIGHT, SCALE) -> None:
                     tank2_sprite.tank.set_tank_name(USERNAME)
                     # Set the first tank to be the local player
                     tank1_sprite.tank.set_local_player(True)
+                    # Set tank control to be qweasd
+                    tank2_sprite.tank.set_controls(1)
                 # Set the current player flag for the chosen player
                 if current_player == 1:
                     tank1_sprite.tank.current_player = True
                 elif current_player == 2:
                     tank2_sprite.tank.current_player = True
-                temp3 = False
+                initialize_game_flag = False
 
             try:
                 # Initialize the input keys list to all False
@@ -270,8 +274,8 @@ def main(WIDTH, HEIGHT, SCALE) -> None:
                                     current_player = userCommand.get('current_player')
                                 # Set the GAME_START flag
                                 GAME_START = True
-                                # Reset the temp2 flag
-                                temp2 = False
+                                # Reset the ready_flag flag
+                                ready_flag = False
                                 # Send a message to the sender socket indicating the user is ready and the current player
                                 sendMessage(senderSocket, pickle.dumps({'user': USERNAME, 'id': USER_ID, 'status': 'ready', 'current_player': current_player}))
                             # If the status is "sync" and sync has not yet been completed
