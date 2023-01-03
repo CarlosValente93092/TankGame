@@ -1,12 +1,18 @@
 from enum import Enum
 from typing import Tuple, List, Dict
 
+# Base class for different states that a tank can be in
 
-# Base class representing a state in the FSM
+
 class State:
     def __init__(self, name: str) -> None:
-        # Name of the state
+        # Set the name of the state
         self.name = name
+
+    @classmethod
+    def update(cls, tank) -> None:
+        # Update the state of the tank
+        pass
 
 # Class representing a transition between two states in the FSM
 
@@ -62,18 +68,6 @@ class FSM:
         if self.current == self.end:
             return False
         return True
-
-
-# Base class for different states that a tank can be in
-class State:
-    def __init__(self, name: str) -> None:
-        # Set the name of the state
-        self.name = name
-
-    @classmethod
-    def update(cls, tank) -> None:
-        # Update the state of the tank
-        pass
 
 
 # State representing when the tank is idle
